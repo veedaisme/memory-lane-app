@@ -106,8 +106,8 @@ export function useNotes() {
     error,
     createNote,
     editNote,
-    removeNote,
-    favoriteNote,
+    deleteNote: removeNote,
+    toggleFavorite: favoriteNote,
   };
 }
 

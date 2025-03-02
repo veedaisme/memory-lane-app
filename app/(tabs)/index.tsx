@@ -17,7 +17,7 @@ export default function TimelineScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   
-  const { notes, createNote, editNote } = useNotes();
+  const { notes, createNote, editNote, deleteNote } = useNotes();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isEditorVisible, setIsEditorVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<'Timeline' | 'Map' | 'Graph'>('Timeline');
@@ -46,6 +46,10 @@ export default function TimelineScreen() {
     } else {
       createNote(noteData);
     }
+  };
+  
+  const handleDeleteNote = (noteId: string) => {
+    deleteNote(noteId);
   };
   
   const handleTabPress = (tab: 'Timeline' | 'Map' | 'Graph') => {
@@ -144,7 +148,12 @@ export default function TimelineScreen() {
       <FlatList
         data={notes}
         renderItem={({ item, index }) => (
-          <NoteCard note={item} onPress={handleNotePress} index={index} />
+          <NoteCard 
+            note={item} 
+            onPress={handleNotePress} 
+            onDelete={handleDeleteNote}
+            index={index} 
+          />
         )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.notesList}
