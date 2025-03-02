@@ -54,13 +54,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const handleSave = () => {
     if (!content.trim()) return;
     
-    // Ensure there's always a title - use content preview if title is empty
-    let noteTitle = title.trim();
-    if (!noteTitle) {
-      // Create a title from the first line or first few words of content
-      const firstLine = content.split('\n')[0];
-      noteTitle = firstLine.length > 30 ? firstLine.substring(0, 30) + '...' : firstLine;
-    }
+    // Use title as-is without auto-generating from content
+    const noteTitle = title.trim();
     
     const updatedNote: Partial<Note> = {
       ...(note || {}),
