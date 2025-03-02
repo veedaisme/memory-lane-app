@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, FlatList, TouchableOpacity, View, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { NoteCard } from '@/components/NoteCard';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -65,6 +66,59 @@ export default function TimelineScreen() {
       </ThemedText>
     </ThemedView>
   );
+  
+  // Toast configuration
+  const toastConfig = {
+    info: ({ text1, text2, onPress }: any) => (
+      <TouchableOpacity
+        style={{
+          height: 60,
+          width: '90%',
+          backgroundColor: '#14171A',
+          borderRadius: 10,
+          padding: 10,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 20,
+        }}
+        onPress={onPress}
+        activeOpacity={0.9}
+      >
+        <View style={{ flexDirection: 'column', flex: 1 }}>
+          <ThemedText style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+            {text1}
+          </ThemedText>
+          <ThemedText style={{ color: 'white', fontSize: 14, opacity: 0.8 }}>
+            {text2}
+          </ThemedText>
+        </View>
+        <IconSymbol name="arrow.uturn.backward" size={24} color="white" />
+      </TouchableOpacity>
+    ),
+    success: ({ text1 }: any) => (
+      <View
+        style={{
+          height: 60,
+          width: '90%',
+          backgroundColor: '#4CAF50',
+          borderRadius: 10,
+          padding: 10,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 20,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <IconSymbol name="checkmark.circle" size={24} color="white" />
+          <ThemedText style={{ color: 'white', fontSize: 16, fontWeight: '600', marginLeft: 10 }}>
+            {text1}
+          </ThemedText>
+        </View>
+      </View>
+    ),
+  };
   
   return (
     <ThemedView style={styles.container}>
@@ -207,6 +261,9 @@ export default function TimelineScreen() {
           onClose={() => setIsEditorVisible(false)}
         />
       </Modal>
+      
+      {/* Toast for undo functionality */}
+      <Toast config={toastConfig} />
     </ThemedView>
   );
 }

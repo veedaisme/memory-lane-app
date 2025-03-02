@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { Provider } from 'react-redux';
+import Toast from 'react-native-toast-message';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { store } from '@/store';
@@ -41,6 +42,7 @@ export default function RootLayout() {
         </Stack>
         <StatusBar style="dark" />
       </ThemeProvider>
+      <Toast />
     </Provider>
   );
 }

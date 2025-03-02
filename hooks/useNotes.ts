@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
 import { 
   Note, 
   addNote, 
@@ -22,6 +23,7 @@ const generateId = () => {
 export function useNotes() {
   const dispatch = useDispatch();
   const { notes, loading, error } = useSelector((state: RootState) => state.notes);
+  const [deletedNote, setDeletedNote] = useState<Note | null>(null);
 
   // Load notes from storage on initial render
   useEffect(() => {
@@ -93,17 +95,73 @@ export function useNotes() {
   };
 
   const removeNote = (id: string) => {
-    dispatch(deleteNote(id));
+    // Find the note before deleting it
+    const noteToDelete = notes.find(note => note.id === id);
     
-    // Explicitly save the updated notes list to storage after deletion
-    const updatedNotes = notes.filter(note => note.id !== id);
-    saveNotes(updatedNotes).catch(error => {
-      console.error('Error saving notes after deletion:', error);
-    });
+    if (noteToDelete) {
+      // Save the deleted note for potential undo
+      setDeletedNote(noteToDelete);
+      
+      // Delete the note from Redux store
+      dispatch(deleteNote(id));
+      
+      // Explicitly save the updated notes list to storage after deletion
+      const updatedNotes = notes.filter(note => note.id !== id);
+      saveNotes(updatedNotes).catch(error => {
+        console.error('Error saving notes after deletion:', error);
+      });
+      
+      // Show toast with undo option
+      Toast.show({
+        type: 'info',
+        text1: 'Note deleted',
+        text2: 'Tap to undo',
+        position: 'bottom',
+        visibilityTime: 4000,
+        autoHide: true,
+        topOffset: 30,
+        bottomOffset: 80,
+        onPress: () => handleUndoDelete(),
+        onHide: () => {
+          // Clear the deleted note reference when toast is hidden
+          setDeletedNote(null);
+        }
+      });
+    }
   };
 
   const favoriteNote = (id: string) => {
     dispatch(toggleFavorite(id));
+  };
+
+  const handleUndoDelete = () => {
+    if (deletedNote) {
+      // Hide the toast first to prevent multiple taps
+      Toast.hide();
+      
+      // Add the note back to Redux store
+      dispatch(addNote(deletedNote));
+      
+      // Save the updated notes list to storage
+      saveNotes([...notes, deletedNote]).catch(error => {
+        console.error('Error saving notes after undo deletion:', error);
+      });
+      
+      // Show confirmation toast
+      setTimeout(() => {
+        Toast.show({
+          type: 'success',
+          text1: 'Note restored',
+          position: 'bottom',
+          visibilityTime: 2000,
+          autoHide: true,
+          bottomOffset: 80,
+        });
+      }, 300);
+      
+      // Clear the deleted note reference
+      setDeletedNote(null);
+    }
   };
 
   return {
