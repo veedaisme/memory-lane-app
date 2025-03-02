@@ -94,6 +94,12 @@ export function useNotes() {
 
   const removeNote = (id: string) => {
     dispatch(deleteNote(id));
+    
+    // Explicitly save the updated notes list to storage after deletion
+    const updatedNotes = notes.filter(note => note.id !== id);
+    saveNotes(updatedNotes).catch(error => {
+      console.error('Error saving notes after deletion:', error);
+    });
   };
 
   const favoriteNote = (id: string) => {

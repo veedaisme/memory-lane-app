@@ -44,6 +44,7 @@ export function NoteCard({ note, onPress, onDelete, index }: NoteCardProps) {
           duration: 200,
           useNativeDriver: true,
         }).start(() => {
+          // Make sure to call onDelete to trigger the actual deletion
           onDelete(note.id);
         });
       } else {
