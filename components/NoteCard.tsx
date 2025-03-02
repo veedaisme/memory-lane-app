@@ -37,18 +37,28 @@ export function NoteCard({ note, onPress, onDelete, index }: NoteCardProps) {
     if (event.nativeEvent.oldState === State.ACTIVE) {
       const { translationX } = event.nativeEvent;
       
-      // If swiped far enough to the left, trigger delete
-      if (translationX < DELETE_THRESHOLD) {
-        Animated.timing(translateX, {
-          toValue: -SCREEN_WIDTH,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(() => {
-          // Make sure to call onDelete to trigger the actual deletion
-          onDelete(note.id);
-        });
+      // Only process left swipes (negative translationX values)
+      if (translationX < 0) {
+        // If swiped far enough to the left, trigger delete
+        if (translationX < DELETE_THRESHOLD) {
+          Animated.timing(translateX, {
+            toValue: -SCREEN_WIDTH,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            // Make sure to call onDelete to trigger the actual deletion
+            onDelete(note.id);
+          });
+        } else {
+          // Otherwise, reset position
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: true,
+            bounciness: 10,
+          }).start();
+        }
       } else {
-        // Otherwise, reset position
+        // Reset position for any right swipe attempts
         Animated.spring(translateX, {
           toValue: 0,
           useNativeDriver: true,
@@ -98,6 +108,9 @@ export function NoteCard({ note, onPress, onDelete, index }: NoteCardProps) {
         <PanGestureHandler
           onGestureEvent={onGestureEvent}
           onHandlerStateChange={onHandlerStateChange}
+          activeOffsetX={-20} // Only activate after moving 20 pixels left
+          failOffsetX={20} // Fail the gesture if moving right
+          activeOffsetY={[-20, 20]} // Allow some vertical movement before failing
         >
           <Animated.View style={[
             styles.cardContainer,
