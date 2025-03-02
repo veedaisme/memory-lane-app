@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -34,6 +34,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [newTag, setNewTag] = useState('');
   const [isDraft, setIsDraft] = useState(false);
   
+  const contentInputRef = useRef<TextInput>(null);
+  
   useEffect(() => {
     const fetchLocation = async () => {
       if (!location) {
@@ -49,12 +51,17 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     };
     
     fetchLocation();
+    
+    if (!note && contentInputRef.current) {
+      setTimeout(() => {
+        contentInputRef.current?.focus();
+      }, 100);
+    }
   }, []);
   
   const handleSave = () => {
     if (!content.trim()) return;
     
-    // Use title as-is without auto-generating from content
     const noteTitle = title.trim();
     
     const updatedNote: Partial<Note> = {
@@ -153,6 +160,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           textAlignVertical="top"
           accessibilityLabel="Note content"
           accessibilityHint="Enter the content for your note"
+          ref={contentInputRef}
         />
       </ScrollView>
       
