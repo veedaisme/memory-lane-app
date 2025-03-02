@@ -81,7 +81,9 @@ export function NoteCard({ note, onPress, onDelete, index }: NoteCardProps) {
     const date = new Date(dateString);
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInMinutes < 60) {
+    if (diffInMinutes < 1) {
+      return ' just now';
+    } else if (diffInMinutes < 60) {
       return `${diffInMinutes}min ago`;
     } else if (diffInMinutes < 24 * 60) {
       return `${Math.floor(diffInMinutes / 60)}h ago`;
