@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -20,11 +20,25 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
+            height: 80,
+            paddingBottom: 20,
           },
-          default: {},
+          default: {
+            height: 60,
+            paddingBottom: 10,
+          },
         }),
+        tabBarItemStyle: {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        tabBarIconStyle: {
+          marginBottom: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+        },
       }}>
       <Tabs.Screen
         name="index"

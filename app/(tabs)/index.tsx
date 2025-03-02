@@ -1,74 +1,295 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, FlatList, TouchableOpacity, View, Modal } from 'react-native';
+import { useRouter } from 'expo-router';
+import { NoteCard } from '@/components/NoteCard';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { NoteEditor } from '@/components/NoteEditor';
+import { useNotes } from '@/hooks/useNotes';
+import { Note } from '@/store/notesSlice';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { generateMockNotes } from '@/utils/mockData';
 
-export default function HomeScreen() {
+export default function TimelineScreen() {
+  const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+  
+  const { notes, createNote, editNote } = useNotes();
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [isEditorVisible, setIsEditorVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState<'Timeline' | 'Map' | 'Graph'>('Timeline');
+  
+  // Load mock data if no notes exist
+  useEffect(() => {
+    if (notes.length === 0) {
+      const mockNotes = generateMockNotes();
+      mockNotes.forEach(note => createNote(note));
+    }
+  }, []);
+  
+  const handleNotePress = (note: Note) => {
+    setSelectedNote(note);
+    setIsEditorVisible(true);
+  };
+  
+  const handleCreateNote = () => {
+    setSelectedNote(null);
+    setIsEditorVisible(true);
+  };
+  
+  const handleSaveNote = (noteData: Partial<Note>) => {
+    if (selectedNote) {
+      editNote({ ...noteData, id: selectedNote.id });
+    } else {
+      createNote(noteData);
+    }
+  };
+  
+  const handleTabPress = (tab: 'Timeline' | 'Map' | 'Graph') => {
+    setActiveTab(tab);
+  };
+  
+  const renderEmptyState = () => (
+    <ThemedView style={styles.emptyState}>
+      <IconSymbol name="note.text" size={48} color={colors.icon} />
+      <ThemedText type="subtitle" style={styles.emptyStateTitle}>No notes yet</ThemedText>
+      <ThemedText style={styles.emptyStateText}>
+        Tap the + button to create your first note
+      </ThemedText>
+    </ThemedView>
+  );
+  
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <ThemedView style={styles.container}>
+      {/* Header */}
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Memory Lane</ThemedText>
+        <View style={styles.headerIcons}>
+          <TouchableOpacity style={styles.iconButton}>
+            <IconSymbol name="bell" size={24} color={colors.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <IconSymbol name="clock" size={24} color={colors.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <IconSymbol name="person.crop.circle" size={24} color={colors.icon} />
+          </TouchableOpacity>
+        </View>
+      </ThemedView>
+      
+      {/* Tab Selector */}
+      <ThemedView style={styles.tabContainer}>
+        <TouchableOpacity 
+          style={[
+            styles.tab, 
+            activeTab === 'Timeline' && styles.activeTab
+          ]}
+          onPress={() => handleTabPress('Timeline')}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'Timeline' }}
+        >
+          <ThemedText 
+            style={[
+              styles.tabText, 
+              activeTab === 'Timeline' && styles.activeTabText
+            ]}
+          >
+            Timeline
+          </ThemedText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.tab, 
+            activeTab === 'Map' && styles.activeTab
+          ]}
+          onPress={() => handleTabPress('Map')}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'Map' }}
+        >
+          <ThemedText 
+            style={[
+              styles.tabText, 
+              activeTab === 'Map' && styles.activeTabText
+            ]}
+          >
+            Map
+          </ThemedText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.tab, 
+            activeTab === 'Graph' && styles.activeTab
+          ]}
+          onPress={() => handleTabPress('Graph')}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'Graph' }}
+        >
+          <ThemedText 
+            style={[
+              styles.tabText, 
+              activeTab === 'Graph' && styles.activeTabText
+            ]}
+          >
+            Graph
+          </ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+      
+      {/* Note List */}
+      <FlatList
+        data={notes}
+        renderItem={({ item, index }) => (
+          <NoteCard note={item} onPress={handleNotePress} index={index} />
+        )}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.notesList}
+        ListEmptyComponent={renderEmptyState}
+      />
+      
+      {/* Create Note Button */}
+      <TouchableOpacity 
+        style={styles.createButton}
+        onPress={handleCreateNote}
+        accessibilityRole="button"
+        accessibilityLabel="Create new note"
+      >
+        <IconSymbol name="plus" size={32} color="#FFFFFF" />
+      </TouchableOpacity>
+      
+      {/* Bottom Navigation */}
+      <ThemedView style={styles.bottomNav}>
+        <TouchableOpacity 
+          style={styles.navButton}
+          accessibilityRole="button"
+          accessibilityLabel="Home"
+        >
+          <IconSymbol name="house.fill" size={24} color={colors.tabIconSelected} />
+          <ThemedText type="caption">Home</ThemedText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.push('/explore')}
+          accessibilityRole="button"
+          accessibilityLabel="Explore"
+        >
+          <IconSymbol name="paperplane" size={24} color={colors.tabIconDefault} />
+          <ThemedText type="caption" style={{ color: colors.tabIconDefault }}>
+            Explore
+          </ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+      
+      {/* Note Editor Modal */}
+      <Modal
+        visible={isEditorVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setIsEditorVisible(false)}
+      >
+        <NoteEditor
+          note={selectedNote || undefined}
+          onSave={handleSaveNote}
+          onClose={() => setIsEditorVisible(false)}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </Modal>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 16,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  headerIcons: {
+    flexDirection: 'row',
+    gap: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
+  iconButton: {
+    padding: 4,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE',
+  },
+  tab: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginRight: 8,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#14171A',
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  activeTabText: {
+    fontWeight: '600',
+  },
+  notesList: {
+    padding: 16,
+    paddingBottom: 100,
+  },
+  createButton: {
+    position: 'absolute',
+    bottom: 80,
+    alignSelf: 'center',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#14171A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  bottomNav: {
+    position: 'absolute',
     bottom: 0,
     left: 0,
-    position: 'absolute',
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#EEEEEE',
+    backgroundColor: '#FFFFFF',
+  },
+  navButton: {
+    alignItems: 'center',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    marginTop: 64,
+  },
+  emptyStateTitle: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });

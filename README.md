@@ -1,50 +1,85 @@
-# Welcome to your Expo app 👋
+# Memory Lane Notes
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A minimalist note-taking application with a focus on beautiful animations and accessibility.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Timeline View**: Chronological display of notes with titles, content previews, timestamps, and location data
+- **Note Editor**: Full-screen modal with formatting options, location tagging, and media attachments
+- **Reduced Cognitive Load**: Smart defaults and minimalist design to reduce mental effort
+- **Location Context**: Automatic location tagging for all notes
+- **Accessibility-First**: Designed to be inclusive for all users
 
-   ```bash
-   npm install
-   ```
+## Technical Implementation
 
-2. Start the app
+### Architecture
 
-   ```bash
-    npx expo start
-   ```
+- **Frontend**: React Native with Expo
+- **State Management**: Redux Toolkit
+- **Storage**: AsyncStorage for local persistence
+- **Location**: Expo Location for geolocation services
 
-In the output, you'll find options to open the app in a
+### Key Components
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+1. **Timeline View**: Displays notes in a chronological feed
+2. **Note Editor**: Full-screen modal for creating and editing notes
+3. **Note Card**: Individual note display in the timeline
+4. **Location Services**: Automatic location tagging
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Getting Started
 
-## Get a fresh project
+### Prerequisites
 
-When you're ready, run:
+- Node.js (v14 or later)
+- npm or yarn
+- Expo CLI
+
+### Installation
 
 ```bash
-npm run reset-project
+# Clone the repository
+git clone <repository-url>
+
+# Navigate to the project directory
+cd memory-lane-notes
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Usage
 
-## Learn more
+1. **View Notes**: Browse your notes in the Timeline view
+2. **Create Note**: Tap the + button to create a new note
+3. **Edit Note**: Tap on any note to open it in the editor
+4. **Format Text**: Use the formatting toolbar in the editor
+5. **Add Tags**: Organize notes with tags
+6. **View Location**: See where each note was created
 
-To learn more about developing your project with Expo, look at the following resources:
+## Phase 1 Implementation
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+The current implementation includes:
 
-## Join the community
+- Timeline view with note cards
+- Note editor with formatting options
+- Location tagging
+- Redux state management
+- Local storage persistence
 
-Join our community of developers creating universal apps.
+## Upcoming Features
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Map view for geographic visualization of notes
+- Memory Lane Graph for discovering connections between notes
+- Voice input capabilities
+- Cloud synchronization
+
+## Accessibility Features
+
+- Screen reader optimization
+- Voice control support
+- High contrast mode
+- Customizable text size
+- Reduced motion options
